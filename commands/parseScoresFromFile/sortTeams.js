@@ -1,5 +1,3 @@
-const sortTeams = (teams) => (
-  teams.sort((a, b) => b.points - a.points || a.name < b.name).slice(0, 3)
-);
+const sortTeams = (a, b) => b.points - a.points || a.name < b.name
 
 module.exports = sortTeams;

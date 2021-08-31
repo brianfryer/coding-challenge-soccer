@@ -6,6 +6,7 @@ const parseTeam = (str) => {
   const scoreSeparatorIndex = getScoreSeparatorIndex(str);
   const name = str.slice(0, scoreSeparatorIndex).trim();
   const score = Number(str.slice(scoreSeparatorIndex).trim());
+
   return { name, score };
 };
 
