@@ -4,11 +4,17 @@
   "description": "",
   "author": "Brian Fryer",
   "main": "index.js",
+  "bin": {
+    "scores": "index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "chalk": "^4.1.2",
-    "commander": "^8.1.0"
+    "commander": "^8.1.0",
+    "line-reader": "^0.4.0",
+    "lodash": "^4.17.21",
+    "n-readlines": "^1.0.1",
+    "pluralize": "^8.0.0"
   }
 }
