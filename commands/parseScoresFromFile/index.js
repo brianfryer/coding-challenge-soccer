@@ -1,20 +1,22 @@
 const fs = require('fs');
 const lineByLine = require('n-readlines');
 const { EOL } = require('os');
-const { find } = require('lodash');
+const { first } = require('lodash');
 
+const calculatePoints = require('./calculatePoints');
 const formatTeams = require('./formatTeams');
+const isNextDay = require('./isNextDay');
 const parseGameFromLine = require('./parseGameFromLine');
 const sortTeams = require('./sortTeams');
-const { POINT_VALUES, TEAM_SEPARATOR } = require('./constants');
 
 const parseSoccerScoresFromFile = (_, { args }) => {
   try {
-    if (args[0] && fs.existsSync(args[0])) {
-      const matchDays = [[]];
-      let current = 0;
+    const pathToFile = first(args);
 
-      const liner = new lineByLine(args[0]);
+    if (pathToFile && fs.existsSync(pathToFile)) {
+      const liner = new lineByLine(pathToFile);
+      const matchDays = [[]];
+      let currentDay = 0;
       let line;
 
       while (line = liner.next()) {
@@ -22,23 +24,23 @@ const parseSoccerScoresFromFile = (_, { args }) => {
         const isDraw = ((n) => n === 0)(a.score - b.score);
 
         [a, b].forEach(({ name }, i) => {
-          // if the current day already has an
-          // entry for this team, we're onto a
-          // new matchday
-          if (matchDays[current].some((g) => g.name === name)) {
+          const todaysGames = matchDays[currentDay];
+
+          if (isNextDay({ todaysGames, currentTeam: name })) {
             matchDays.push([]);
-            current++;
+            currentDay++;
           }
 
-          // add up points, including points
-          // from previous games.
-          const previousGame = find(matchDays[current - 1], (g) => g.name === name);
-          const previousPoints = previousGame?.points || 0;
-          const position = (i === 0) ? 'win' : 'loss'; // first position = 'win'
-          const result = (isDraw) ? 'draw' : position;
-          const points = POINT_VALUES[result] + previousPoints;
+          const yesterdaysGames = matchDays[currentDay - 1];
 
-          matchDays[current].push({ name, points });
+          const points = calculatePoints({
+            yesterdaysGames,
+            currentTeam: name,
+            index: i,
+            isDraw,
+          });
+
+          matchDays[currentDay].push({ name, points });
         });
       }
 
