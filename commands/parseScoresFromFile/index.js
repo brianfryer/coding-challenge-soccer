@@ -1,10 +1,10 @@
 const fs = require('fs');
 const lineByLine = require('n-readlines');
 const { EOL } = require('os');
-const { first } = require('lodash');
+const { find, first } = require('lodash');
 
 const calculatePoints = require('./calculatePoints');
-const formatTeams = require('./formatTeams');
+const formatTeam = require('./formatTeam');
 const isNextDay = require('./isNextDay');
 const parseGameFromLine = require('./parseGameFromLine');
 const sortTeams = require('./sortTeams');
@@ -24,21 +24,14 @@ const parseSoccerScoresFromFile = (_, { args }) => {
         const isDraw = ((n) => n === 0)(a.score - b.score);
 
         [a, b].forEach(({ name }, i) => {
-          const todaysGames = matchDays[currentDay];
-
-          if (isNextDay({ todaysGames, currentTeam: name })) {
+          if (isNextDay({ currentTeam: name, todaysGames: matchDays[currentDay] })) {
             matchDays.push([]);
             currentDay++;
           }
 
-          const yesterdaysGames = matchDays[currentDay - 1];
-
-          const points = calculatePoints({
-            yesterdaysGames,
-            currentTeam: name,
-            index: i,
-            isDraw,
-          });
+          const previousGame = find(matchDays[currentDay - 1], (g) => g.name === name);
+          const previousPoints = previousGame?.points || 0;
+          const points = calculatePoints({ isDraw, position: i, previousPoints });
 
           matchDays[currentDay].push({ name, points });
         });
@@ -47,8 +40,9 @@ const parseSoccerScoresFromFile = (_, { args }) => {
       const output = matchDays
         .map((teams, i) => {
           const heading = `Matchday ${i + 1}`;
-          const sortedTeams = sortTeams(teams);
-          const formattedTeams = formatTeams(sortedTeams);
+          const sortedTeams = teams.sort(sortTeams);
+          const topTeams = sortedTeams.slice(0, 3);
+          const formattedTeams = topTeams.map(formatTeam).join(EOL).concat(EOL);
 
           return [heading, formattedTeams].join(EOL);
         })
