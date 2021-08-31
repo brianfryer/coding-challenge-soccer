@@ -1,4 +1,4 @@
-const { POINT_VALUES, TEAM_SEPARATOR } = require('./constants');
+const { POINT_VALUES } = require('./constants');
 
 const calculatePoints = ({ isDraw, position, previousPoints }) => {
   if (isDraw) {
