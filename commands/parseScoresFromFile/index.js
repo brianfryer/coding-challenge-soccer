@@ -14,16 +14,19 @@ const parseSoccerScoresFromFile = async (_, { args }) => {
 
   if (pathToFile && fs.existsSync(pathToFile)) {
     const lines = await parseLinesFromFile(pathToFile);
-    const matchDays = [[]];
+    const games = lines.map(parseGameFromLine);
+    const matchDays = [];
     let currentDay = 0;
 
-    lines.forEach((line) => {
-      const { teams, isDraw } = parseGameFromLine(line);
-
+    games.forEach(({ teams, isDraw }) => {
       teams.forEach((team, i) => {
+
         if (isNextDay({ currentTeam: team, todaysGames: matchDays[currentDay] })) {
-          matchDays.push([]);
           currentDay++;
+        }
+
+        if (!matchDays[currentDay]) {
+          matchDays.push([]);
         }
 
         const previousGame = find(matchDays[currentDay - 1], (g) => g.team === team);
@@ -37,11 +40,14 @@ const parseSoccerScoresFromFile = async (_, { args }) => {
     const output = matchDays
       .map((teams, i) => {
         const heading = `Matchday ${i + 1}`;
-        const sortedTeams = teams.sort(sortTeams);
-        const topTeams = sortedTeams.slice(0, 3);
-        const formattedTeams = topTeams.map(formatTeamOutput).join(EOL).concat(EOL);
+        const topTeams = teams
+          .sort(sortTeams)
+          .slice(0, 3)
+          .map(formatTeamOutput)
+          .join(EOL)
+          .concat(EOL);
 
-        return [heading, formattedTeams].join(EOL);
+        return [heading, topTeams].join(EOL);
       })
       .join(EOL);
 

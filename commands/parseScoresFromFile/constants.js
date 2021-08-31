@@ -4,11 +4,11 @@ const POINT_VALUES = {
   'loss': 0,
 };
 
-const TEAM_SEPARATOR = ',';
-const SCORE_SEPARATOR = ' ';
+const TEAM_DELIMETER = ',';
+const SCORE_DELIMETER = ' ';
 
 module.exports = {
   POINT_VALUES,
-  TEAM_SEPARATOR,
-  SCORE_SEPARATOR,
+  TEAM_DELIMETER,
+  SCORE_DELIMETER,
 };
