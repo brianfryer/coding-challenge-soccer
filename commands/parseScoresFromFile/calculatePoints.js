@@ -1,13 +1,12 @@
-const { find } = require('lodash');
 const { POINT_VALUES, TEAM_SEPARATOR } = require('./constants');
 
-const calculatePoints = ({ yesterdaysGames, currentTeam, index, isDraw }) => {
-  const previousGame = find(yesterdaysGames, ({ name }) => name === currentTeam);
-  const previousPoints = previousGame?.points || 0;
-  const position = (index === 0) ? 'win' : 'loss';
-  const result = (isDraw) ? 'draw' : position;
+const calculatePoints = ({ isDraw, position, previousPoints }) => {
+  if (isDraw) {
+    return POINT_VALUES['draw'] + previousPoints;
+  }
 
-  return POINT_VALUES[result] + previousPoints;
+  const key = (position === 0) ? 'win' : 'loss';
+  return POINT_VALUES[key] + previousPoints;
 };
 
 module.exports = calculatePoints;
